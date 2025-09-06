@@ -3,6 +3,7 @@ package com.niranjan.ems.controller;
 import com.niranjan.ems.models.User;
 import com.niranjan.ems.repo.UserRepository;
 import com.niranjan.ems.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,4 +32,27 @@ public class UserController {
     public List<User> getManagers() {
         return service.getManagers();
     }
+
+    @PatchMapping("/{id}/promote")
+    public ResponseEntity<?> promoteUser(@PathVariable Long id) {
+        try {
+            User updatedUser = service.promoteUser(id);
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}/demote")
+    public ResponseEntity<?> demoteUser(@PathVariable Long id) {
+        try {
+            User updatedUser = service.demoteUser(id);
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+
 }
