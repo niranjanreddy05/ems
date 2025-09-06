@@ -1,7 +1,7 @@
 package com.niranjan.ems.controller;
 
 import com.niranjan.ems.models.Department;
-import com.niranjan.ems.repo.DepartmentRepository;
+import com.niranjan.ems.service.DepartmentService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,19 +10,19 @@ import java.util.List;
 @RequestMapping("/departments")
 public class DepartmentController {
 
-    private final DepartmentRepository departmentRepo;
+    private final DepartmentService service;
 
-    public DepartmentController(DepartmentRepository departmentRepo) {
-        this.departmentRepo = departmentRepo;
+    public DepartmentController(DepartmentService service) {
+        this.service = service;
     }
 
     @GetMapping
     public List<Department> getAllDepartments() {
-        return departmentRepo.findAll();
+        return service.getAllDepartments();
     }
 
     @GetMapping("/{id}")
     public Department getDepartmentById(@PathVariable Long id) {
-        return departmentRepo.findById(id).orElse(null);
+        return service.getDepartmentById(id);
     }
 }

@@ -2,6 +2,7 @@ package com.niranjan.ems.controller;
 
 import com.niranjan.ems.models.User;
 import com.niranjan.ems.repo.UserRepository;
+import com.niranjan.ems.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,19 +11,24 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserRepository userRepo;
+    private final UserService service;
 
-    public UserController(UserRepository userRepo) {
-        this.userRepo = userRepo;
+    public UserController(UserService service) {
+        this.service = service;
     }
 
     @GetMapping
     public List<User> getAllUsers() {
-        return userRepo.findAll();
+        return service.getAllUsers();
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
-        return userRepo.findById(id).orElse(null);
+        return service.getUserById(id);
+    }
+
+    @GetMapping("/managers")
+    public List<User> getManagers() {
+        return service.getManagers();
     }
 }
