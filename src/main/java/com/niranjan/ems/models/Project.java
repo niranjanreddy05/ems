@@ -68,6 +68,11 @@ public class Project {
     public List<User> getEmployees() { return employees; }
     public void setEmployees(List<User> employees) { this.employees = employees; }
 
+    public Project(String description, String name) {
+        this.description = description;
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "Project{" +

@@ -57,7 +57,7 @@ public class ProjectController {
         }
     }
 
-    // 🔹 Unassign employee
+    // Unassign employee
     @PatchMapping("/{projectId}/unassign-employee/{userId}")
     public ResponseEntity<?> unassignEmployee(@PathVariable Long projectId, @PathVariable Long userId) {
         try {

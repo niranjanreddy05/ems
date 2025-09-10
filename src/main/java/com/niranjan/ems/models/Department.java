@@ -10,6 +10,10 @@ import java.util.List;
 @Table(name = "departments")
 public class Department {
 
+    public Department() {
+
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,6 +35,10 @@ public class Department {
 
     public List<User> getUsers() { return users; }
     public void setUsers(List<User> users) { this.users = users; }
+
+    public Department(String name) {
+        this.name = name;
+    }
 
     @Override
     public String toString() {

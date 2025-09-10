@@ -22,6 +22,13 @@ public class User {
     @Column(nullable = false, length = 50)
     private String role;  // ADMIN / MANAGER / EMPLOYEE
 
+    @Column(nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+
     // Many Users → One Department
     @ManyToOne
     @JoinColumn(name = "department_id")
@@ -59,6 +66,34 @@ public class User {
 
     public List<Project> getProjects() { return projects; }
     public void setProjects(List<Project> projects) { this.projects = projects; }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public User() {
+
+    }
+
+    public User(String password, String username, String email, String name) {
+        this.password = password;
+        this.username = username;
+        this.role = "EMPLOYEE";
+        this.email = email;
+        this.name = name;
+    }
 
     @Override
     public String toString() {
