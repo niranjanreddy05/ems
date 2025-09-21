@@ -1,8 +1,10 @@
 package com.niranjan.ems.controller;
 
 import com.niranjan.ems.models.Project;
+import com.niranjan.ems.models.UserPrincipal;
 import com.niranjan.ems.service.ProjectService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,9 +40,9 @@ public class ProjectController {
     }
 
     @PatchMapping("/{projectId}/assign-employee/{userId}")
-    public ResponseEntity<?> assignEmployee(@PathVariable Long projectId, @PathVariable Long userId) {
+    public ResponseEntity<?> assignEmployee(@PathVariable Long projectId, @PathVariable Long userId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
-            Project updated = service.assignEmployee(projectId, userId);
+            Project updated = service.assignEmployee(projectId, userId, userPrincipal);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -59,9 +61,9 @@ public class ProjectController {
 
     // Unassign employee
     @PatchMapping("/{projectId}/unassign-employee/{userId}")
-    public ResponseEntity<?> unassignEmployee(@PathVariable Long projectId, @PathVariable Long userId) {
+    public ResponseEntity<?> unassignEmployee(@PathVariable Long projectId, @PathVariable Long userId,  @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
-            Project updated = service.unassignEmployeeFromProject(projectId, userId);
+            Project updated = service.unassignEmployeeFromProject(projectId, userId, userPrincipal);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

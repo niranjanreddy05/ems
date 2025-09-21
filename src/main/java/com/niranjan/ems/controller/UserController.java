@@ -1,9 +1,11 @@
 package com.niranjan.ems.controller;
 
 import com.niranjan.ems.models.User;
+import com.niranjan.ems.models.UserPrincipal;
 import com.niranjan.ems.repo.UserRepository;
 import com.niranjan.ems.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,13 +21,14 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return service.getAllUsers();
+    public List<User> getAllUsers(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return service.getAllUsers(userPrincipal);
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return service.getUserById(id);
+    public User getUserById(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        User user = service.getEmployeeByIdWithCheck(id, userPrincipal);
+        return user;
     }
 
     @GetMapping("/managers")
@@ -57,6 +60,7 @@ public class UserController {
     @PostMapping("/register")
     public User register(@RequestBody User user) {
 
+        user.setRole("EMPLOYEE");
         return service.register(user);
     }
 

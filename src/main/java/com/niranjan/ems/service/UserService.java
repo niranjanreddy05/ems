@@ -3,10 +3,12 @@ package com.niranjan.ems.service;
 import com.niranjan.ems.models.Department;
 import com.niranjan.ems.models.Project;
 import com.niranjan.ems.models.User;
+import com.niranjan.ems.models.UserPrincipal;
 import com.niranjan.ems.repo.DepartmentRepository;
 import com.niranjan.ems.repo.ProjectRepository;
 import com.niranjan.ems.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,7 +47,6 @@ public class UserService {
         if (authentication.isAuthenticated()) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // Assuming your UserDetails stores role in authorities
             String role = userDetails.getAuthorities().iterator().next().getAuthority();
 
             return jwtService.generateToken(userDetails.getUsername(), role);
@@ -54,12 +55,61 @@ public class UserService {
         }
     }
 
-    public List<User> getAllUsers() {
-        return repo.findAll();
+    public List<User> getAllUsers(UserPrincipal userPrincipal) {
+        String role = userPrincipal.getAuthorities().iterator().next().getAuthority();
+
+        if ("ADMIN".equals(role)) {
+            // ADMIN → return all users
+            return repo.findAll();
+        }
+
+        if ("MANAGER".equals(role)) {
+            // MANAGER → only employees from their department
+            Long deptId = userPrincipal.getUser().getDepartment().getId();
+            return repo.findByRoleAndDepartmentId("EMPLOYEE", deptId);
+        }
+
+        // EMPLOYEE (or anyone else) → not allowed
+        throw new AccessDeniedException("Employees are not allowed to view user list");
     }
 
-    public User getUserById(Long id) {
-        return repo.findById(id).orElse(null);
+    public User getEmployeeByIdWithCheck(Long id, UserPrincipal userPrincipal) {
+        // Find the requested user (employee) by id
+        User requestedUser = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Get the current user's role
+        String role = userPrincipal.getAuthorities().iterator().next().getAuthority();
+
+        // ADMIN: can access anyone
+        if (role.equals("ADMIN")) {
+            return requestedUser;
+        }
+
+        // MANAGER: can access employees in their department only
+        if (role.equals("MANAGER")) {
+            if(requestedUser.getId().equals(userPrincipal.getUser().getId())){
+                return requestedUser;
+            }
+            else if (requestedUser.getDepartment() != null &&
+                    requestedUser.getDepartment().getId().equals(userPrincipal.getUser().getDepartment().getId()) &&
+                    requestedUser.getRole().equals("EMPLOYEE")) {
+                return requestedUser;
+            } else {
+                throw new AccessDeniedException("Managers can only access employees from their own department");
+            }
+        }
+
+        // EMPLOYEE: can only access themselves
+        if (role.equals("EMPLOYEE")) {
+            if (requestedUser.getId().equals(userPrincipal.getUser().getId())) {
+                return requestedUser;
+            } else {
+                throw new AccessDeniedException("Employees can only access their own data");
+            }
+        }
+
+        throw new AccessDeniedException("Not allowed");
     }
 
     public List<User> getManagers() {
